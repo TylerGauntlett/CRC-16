@@ -28,8 +28,6 @@ public class CRCMain {
 		String fileChoiceString;
 
 		File f = null;
-		// URL openKeyFile = CRCMain.class.getResource("input.txt");
-		// f = new File(openKeyFile.toURI());
 
 		// Check if the file is inside the src directory. Run a loop until a
 		// valid file is entered.
@@ -71,12 +69,11 @@ public class CRCMain {
 			System.out.println("Choose from the above menu: ");
 
 			// Take in user menu selection.
-			int menuItem;
-			menuItem = sc.nextInt();
+			String menuItem = sc.next();
 
 			// Switch statement to handle menu.
 			switch (menuItem) {
-			case 1:
+			case "1":
 
 				sb = new StringBuilder();
 
@@ -103,7 +100,7 @@ public class CRCMain {
 				currentFileInput = CalculateCRC(fileChoice, f, sb);
 				break;
 
-			case 2:
+			case "2":
 
 				sb = new StringBuilder();
 
@@ -130,13 +127,13 @@ public class CRCMain {
 				VerifyCRC(fileChoice, f, sb);
 				break;
 
-			case 3:
+			case "3":
 				System.out.println("You've chosen Exit.");
 				quit = true;
 				break;
 
 			default:
-				System.out.println("Invalid choice.");
+				System.out.println("Invalid choice. Please enter a number 1-3 inclusively.");
 
 			}
 		} while (!quit);
