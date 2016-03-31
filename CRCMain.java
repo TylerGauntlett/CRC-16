@@ -1,3 +1,4 @@
+
 // Name: Tyler Gauntlett
 // NID: ty340586
 // Course: CIS3360-16Spring 0R02
@@ -16,8 +17,7 @@ import java.util.Scanner;
 public class CRCMain {
 
 	public static String CRCPOLY = "111111011";
-//	public static String CRCPOLY = "10000010110001001";
-	public static String TestCRCPOLY = "111111011";
+	// public static String CRCPOLY = "10000010110001001";
 
 	public static void load() throws URISyntaxException, IOException {
 
@@ -56,12 +56,11 @@ public class CRCMain {
 
 		Scanner fileChoice = new Scanner(f);
 		int runCount = 0;
-		
+
 		// Statement to keep track of the current input so it doesn't have to be
 		// continuously scanned.
 		String currentFileInput = null;
-		
-
+		StringBuilder sb;
 		quit = false;
 
 		do {
@@ -80,7 +79,7 @@ public class CRCMain {
 			switch (menuItem) {
 			case 1:
 
-				StringBuilder sb = new StringBuilder();
+				sb = new StringBuilder();
 
 				// If it is the first time this is running,
 				// scan the input in with a scanner.
@@ -88,8 +87,12 @@ public class CRCMain {
 					while (fileChoice.hasNextLine()) {
 						sb.append(fileChoice.nextLine());
 					}
+
+					currentFileInput = sb.toString();
 				}
-				// If not, append the null string to the end.
+				// If this isn't the first run, there is already a
+				// computed value from the previous run. Use that
+				// instead.
 				else {
 					sb.append(currentFileInput);
 				}
@@ -102,7 +105,30 @@ public class CRCMain {
 				break;
 
 			case 2:
-				System.out.println("You've chosen Verify CRC.");
+
+				sb = new StringBuilder();
+
+				// If it is the first time this is running,
+				// scan the input in with a scanner.
+				if (runCount == 0) {
+					while (fileChoice.hasNextLine()) {
+						sb.append(fileChoice.nextLine());
+					}
+
+					currentFileInput = sb.toString();
+				}
+				// If this isn't the first run, there is already a
+				// computed value from the previous run. Use that
+				// instead.
+				else {
+					sb.append(currentFileInput);
+				}
+
+				// Increase count after the program has ran 1 time.
+				runCount++;
+
+				// Run the verify CRC.
+				VerifyCRC(fileChoice, f, sb);
 				break;
 
 			case 3:
@@ -156,11 +182,11 @@ public class CRCMain {
 		System.out.println("The input file (hex): " + hexInputString);
 
 		System.out.println("The input file (bin):");
-		
+
 		// Loop to print binary input bits in sets of 4.
 		int spaciningCounter = binaryInputString.length();
 		for (int i = 0; i < binaryInputString.length(); i++) {
-			
+
 			// Handles spaces.
 			if (spaciningCounter % 4 == 0 && i != 0 && (binaryInputString.length() - spaciningCounter) % 32 != 0)
 				System.out.print(" ");
@@ -168,9 +194,9 @@ public class CRCMain {
 			// Prints char.
 			System.out.print(binaryInputString.charAt(i));
 			spaciningCounter--;
-			
+
 			// Math to calculate when to put a new line.
-			if((binaryInputString.length() - spaciningCounter) % 32 == 0)
+			if ((binaryInputString.length() - spaciningCounter) % 32 == 0)
 				System.out.println();
 		}
 
@@ -178,6 +204,7 @@ public class CRCMain {
 
 		System.out.print("The polynomial that was used (binary bit string): ");
 
+		// Print CRC polynomial in groups of 4.
 		spaciningCounter = CRCPOLY.length();
 		for (int i = 0; i < CRCPOLY.length(); i++) {
 			if (spaciningCounter % 4 == 0 && i != 0)
@@ -186,11 +213,13 @@ public class CRCMain {
 			System.out.print(CRCPOLY.charAt(i));
 			spaciningCounter--;
 		}
-
+		// New line for print purposes.
 		System.out.println();
 
-		System.out.println("We will append sixteen zeros at the end of the binary input.");
-
+		System.out.println("We will append " + (CRCPOLY.length() - 1) + " zeros at the end of the binary input.\n");
+		
+		System.out.println("The binary string answer at each XOR step of CRC calculation:");
+		
 		// Clear string builder before reusing.
 		sb.delete(0, sb.length());
 
@@ -201,7 +230,7 @@ public class CRCMain {
 			sb.append('0');
 		}
 
-		// Print unaltered binary input.
+		// Print unaltered binary input in sets of 4.
 		spaciningCounter = sb.toString().length();
 		for (int i = 0; i < sb.toString().length(); i++) {
 			if (spaciningCounter % 4 == 0 && i != 0)
@@ -230,7 +259,8 @@ public class CRCMain {
 				StringBuilder temp = new StringBuilder();
 				String modifiedSB = null;
 
-				// Create a substring at a specified j value.
+				// Break off CRCPOLY.length() amount of bits from the binary
+				// input before XOR'ing.
 				modifiedSB = sb.substring(j, j + CRCPOLY.length());
 
 				// Add the string to an empty string builder.
@@ -317,7 +347,7 @@ public class CRCMain {
 		}
 
 		StringBuilder tempSB = new StringBuilder();
-		
+
 		// Read from new file enclosed in the try block below.
 		try {
 
@@ -343,6 +373,132 @@ public class CRCMain {
 			e.printStackTrace();
 		}
 		return tempSB.toString();
+
+	}
+
+	public static void VerifyCRC(Scanner fileChoice, File f, StringBuilder sb) {
+
+		String hexInputString = sb.toString();
+
+		String binaryInputString = hexToBin(hexInputString);
+
+		System.out.println("The input file (hex): " + hexInputString);
+
+		System.out.println("The input file (bin):");
+
+		// Loop to print binary input bits in sets of 4.
+		int spaciningCounter = binaryInputString.length();
+		for (int i = 0; i < binaryInputString.length(); i++) {
+
+			// Handles spaces.
+			if (spaciningCounter % 4 == 0 && i != 0 && (binaryInputString.length() - spaciningCounter) % 32 != 0)
+				System.out.print(" ");
+
+			// Prints char.
+			System.out.print(binaryInputString.charAt(i));
+			spaciningCounter--;
+
+			// Math to calculate when to put a new line.
+			if ((binaryInputString.length() - spaciningCounter) % 32 == 0)
+				System.out.println();
+		}
+
+		System.out.print("The polynomial that was used (binary bit string): ");
+
+		// Print CRC polynomial in groups of 4.
+		spaciningCounter = CRCPOLY.length();
+		for (int i = 0; i < CRCPOLY.length(); i++) {
+			if (spaciningCounter % 4 == 0 && i != 0)
+				System.out.print(" ");
+
+			System.out.print(CRCPOLY.charAt(i));
+			spaciningCounter--;
+		}
+		// Print statement for formatting.
+		System.out.println();
+		
+
+		// Calculate the CRC based on the size of the CRC polynomial.
+		String CRCHexString = hexInputString.substring(hexInputString.length() - ((CRCPOLY.length() - 1) / 4),
+				hexInputString.length());
+		
+		System.out.println("The " + (CRCPOLY.length() - 1) + "-bit CRC at the end of the file: " + CRCHexString + "\n");
+
+		// Clear string builder before reusing.
+		sb.delete(0, sb.length());
+
+		sb.append(binaryInputString);
+
+		System.out.println("The binary string answer at each XOR step of CRC verification:");
+		
+		// Loop that generates and prints the xor bits.
+		int skipCount = 0;
+		for (int j = 0; j < sb.length() - CRCPOLY.length() + skipCount; j++) {
+
+			try {
+
+				// Check if the number has leading zeros. If so, skip them
+				// and keep track of how many were skipped.
+				while (sb.charAt(j) == '0') {
+					j++;
+					skipCount++;
+				}
+
+				// Create variables.
+				StringBuilder temp = new StringBuilder();
+				String modifiedSB = null;
+
+				// Break off CRCPOLY.length() amount of bits from the binary
+				// input before XOR'ing.
+				modifiedSB = sb.substring(j, j + CRCPOLY.length());
+
+				// Add the string to an empty string builder.
+				temp.append(modifiedSB);
+
+				// Run it through the XOR function.
+				temp = xOrBits(temp);
+
+				// Replace the master string builder with the slave
+				// derived from the output of the XOR function.
+				sb.replace(j, j + CRCPOLY.length(), temp.toString());
+
+				// Print in subsections of 4 bits together.
+				spaciningCounter = sb.toString().length();
+				for (int i = 0; i < sb.toString().length(); i++) {
+					if (spaciningCounter % 4 == 0 && i != 0)
+						System.out.print(" ");
+
+					System.out.print(sb.toString().charAt(i));
+					spaciningCounter--;
+				}
+
+				System.out.println();
+
+			} catch (Exception e) {
+				// Run the algorithm until arrayOutOfBounds. Catch this error
+				// and break from loop.
+				break;
+			}
+
+		}
+
+		boolean result = true;
+
+		// Scan through output for non zero values.
+		for (int i = 0; i < sb.length(); i++) {
+			if (sb.toString().charAt(i) != '0') {
+				result = false;
+				break;
+			}
+		}
+
+		// Check if there were any non zeros found above.
+		System.out.print("Did the CRC check pass? (Yes or No): ");
+
+		if (result)
+			System.out.print("Yes\n");
+		else
+			System.out.print("No\n");
 
 	}
 
