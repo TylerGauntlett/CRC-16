@@ -16,8 +16,7 @@ import java.util.Scanner;
 
 public class CRCMain {
 
-	public static String CRCPOLY = "111111011";
-	// public static String CRCPOLY = "10000010110001001";
+	public static String CRCPOLY = "10000010110001001";
 
 	public static void load() throws URISyntaxException, IOException {
 
@@ -183,7 +182,7 @@ public class CRCMain {
 
 		System.out.println("The input file (bin):");
 
-		// Loop to print binary input bits in sets of 4.
+		// Loop to print binary input bits in sets of 4 with 32 bits to a line.
 		int spaciningCounter = binaryInputString.length();
 		for (int i = 0; i < binaryInputString.length(); i++) {
 
@@ -217,9 +216,9 @@ public class CRCMain {
 		System.out.println();
 
 		System.out.println("We will append " + (CRCPOLY.length() - 1) + " zeros at the end of the binary input.\n");
-		
+
 		System.out.println("The binary string answer at each XOR step of CRC calculation:");
-		
+
 		// Clear string builder before reusing.
 		sb.delete(0, sb.length());
 
@@ -281,6 +280,7 @@ public class CRCMain {
 
 					System.out.print(sb.toString().charAt(i));
 					spaciningCounter--;
+
 				}
 
 				System.out.println();
@@ -323,11 +323,8 @@ public class CRCMain {
 			// Transfer the src extension to the existing file name.
 			File tempFile = new File("src/", f.getName());
 
-			// Write at the temp address so that the correct src is included,
-			// true = append file
+			// Write to the src file. ACTIVATE IF USING ECLIPSE
 			FileWriter fileWritter = new FileWriter(tempFile.getAbsolutePath(), true);
-
-			// Write to the source file.
 			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
 			bufferWritter.write(CRCHexString);
 			bufferWritter.flush();
@@ -341,9 +338,29 @@ public class CRCMain {
 			bufferWritter.flush();
 			bufferWritter.close();
 			fileWritter.close();
+			
+			
+		
 
 		} catch (IOException e) {
-			e.printStackTrace();
+
+			try{
+				// Write to the bin file.
+				FileWriter fileWritter = new FileWriter(f.getAbsolutePath(), true);
+				BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+				bufferWritter.write(CRCHexString);
+				bufferWritter.flush();
+				bufferWritter.close();
+				fileWritter.close();
+				
+			}
+			catch(IOException ex){
+				
+				ex.printStackTrace();
+			}
+			
+			
+
 		}
 
 		StringBuilder tempSB = new StringBuilder();
@@ -386,7 +403,7 @@ public class CRCMain {
 
 		System.out.println("The input file (bin):");
 
-		// Loop to print binary input bits in sets of 4.
+		// Loop to print binary input bits in sets of 4 with 32 bits to a line.
 		int spaciningCounter = binaryInputString.length();
 		for (int i = 0; i < binaryInputString.length(); i++) {
 
@@ -403,6 +420,9 @@ public class CRCMain {
 				System.out.println();
 		}
 
+		// Print used for formatting.
+		System.out.println();
+
 		System.out.print("The polynomial that was used (binary bit string): ");
 
 		// Print CRC polynomial in groups of 4.
@@ -416,12 +436,11 @@ public class CRCMain {
 		}
 		// Print statement for formatting.
 		System.out.println();
-		
 
 		// Calculate the CRC based on the size of the CRC polynomial.
 		String CRCHexString = hexInputString.substring(hexInputString.length() - ((CRCPOLY.length() - 1) / 4),
 				hexInputString.length());
-		
+
 		System.out.println("The " + (CRCPOLY.length() - 1) + "-bit CRC at the end of the file: " + CRCHexString + "\n");
 
 		// Clear string builder before reusing.
@@ -430,7 +449,7 @@ public class CRCMain {
 		sb.append(binaryInputString);
 
 		System.out.println("The binary string answer at each XOR step of CRC verification:");
-		
+
 		// Loop that generates and prints the xor bits.
 		int skipCount = 0;
 		for (int j = 0; j < sb.length() - CRCPOLY.length() + skipCount; j++) {
