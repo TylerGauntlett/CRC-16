@@ -391,15 +391,27 @@ public class CRCMain {
 	}
 
 	public static void VerifyCRC(Scanner fileChoice, File f, StringBuilder sb) {
-
+		
 		String hexInputString = sb.toString();
-
-		String binaryInputString = hexToBin(hexInputString);
+		
 
 		System.out.println("The input file (hex): " + hexInputString);
 
+		// Prevents crashing with input less than the length of the polynomial.
+		if(hexInputString.length() < CRCPOLY.length()/4)
+		{
+			for(int i = 0; i < CRCPOLY.length() - hexInputString.length(); i++)
+			{
+				hexInputString = "0" + hexInputString;
+			}
+		}
+
+		String binaryInputString = hexToBin(hexInputString);
+
+		
 		System.out.println("The input file (bin):");
 
+		
 		// Loop to print binary input bits in sets of 4 with 32 bits to a line.
 		int spaciningCounter = binaryInputString.length();
 		for (int i = 0; i < binaryInputString.length(); i++) {
@@ -416,7 +428,7 @@ public class CRCMain {
 			if ((binaryInputString.length() - spaciningCounter) % 32 == 0)
 				System.out.println();
 		}
-
+		
 		// Print used for formatting.
 		System.out.println();
 
